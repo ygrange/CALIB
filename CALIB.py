@@ -75,7 +75,7 @@ except ImportError:
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 
 with warnings.catch_warnings():
-    warnings.simplefilter("ignore") # Suppressing warnings that arise when importing 
+    warnings.simplefilter("ignore") # Suppressing warnings that arise when importing
                                     # both parset and parmdb from lofar
     from lofar import parmdb
 
@@ -114,7 +114,7 @@ def config_logger(verbosity_level, logfile):
     :param logfile: File used for logging output. If None, no logging to file.
     """
     # TODO: Maybe the output format should depend on verbosity level too. That should be done here.
-     
+
     logger = logging.getLogger()
     loglevels = [logging.WARNING, # 0
                  logging.INFO,    # 1
@@ -162,7 +162,7 @@ def live_output(cmd):
         if output == "\n":
             logger.debug(outstr)
             outstr = ""
-            timer = time.time() 
+            timer = time.time()
         elif output == '' and process.poll() is not None:
             if len(outstr) > 1:
                 logger.debug(outstr)
@@ -193,8 +193,8 @@ def run_command(cmd):
         live_output(cmd.split())
     except sp.CalledProcessError as cpe:
         # if cmd returns non-zero exit status
-	logger.error("ERROR: {cmd} raised: {cpe}".format(cmd=cmd, cpe=cpe), exc_info=True)
-	raise
+        logger.error("ERROR: {cmd} raised: {cpe}".format(cmd=cmd, cpe=cpe), exc_info=True)
+        raise
 
 # get the imaging parameters
 def get_imaging_parameters(ms, angular_resolution, field_of_view):
@@ -329,7 +329,7 @@ class CALIB(object):
             self._generate_dirlist()
         except ValueError:
             self.logger.error("Error generating dir list", exc_info=True)
-	    raise
+        raise
 
 
     def _create_parser(self):
@@ -453,7 +453,7 @@ class CALIB(object):
 
         if self.interleaved:
             parser.error("Handling of interleaved observations has not been implemented yet!")
-        
+
         self.print_settings()
 
 
@@ -568,7 +568,7 @@ class CALIB(object):
             self.logger.info("############### PIPELINE STAGE 0 ###############")
 
             stage = 0
-            if self.stages['copy'] == True:
+            if self.stages['copy']:
 
                 # Make copy of target and calibrator MS
                 filename_target = "target_{}.MS.{}".format(filename_id_target, stage)
@@ -599,17 +599,17 @@ class CALIB(object):
             self.logger.info("############### PIPELINE STAGE 1 ###############")
 
             stage = stage + 1
-            if self.stages['gaincal'] == True:
+            if self.stages['gaincal']:
 
                 # Generate a sky model for the calibrator
                 try:
                     skymodel = generate_calibrator_skymodel(ms=calibr_ms,
                                                             filename_id=filename_id_calibr)
                 except RuntimeError:
-                    logger.error("Error generating calibrator sky model with parameters {ms}, {filename_id}".format(ms=calibr_ms, 
-                                                                                                                    filename_id=filename_id_calibr), 
+                    logger.error("Error generating calibrator sky model with parameters {ms}, {filename_id}".format(ms=calibr_ms,
+                                                                                                                    filename_id=filename_id_calibr),
                                  exc_info=True)
-		    raise
+                    raise
 
                 # Calibration of flux calibrator
                 ndppp_calibration(ms=calibr_ms,
@@ -637,8 +637,8 @@ class CALIB(object):
                         logger.error("Error smoothing amplitudes with parameters: {calms}, {inparmdb} {outparmdb}".format(calms=calibr_ms,
                                                                                                                           inparmdb=in_instr_parmdb,
                                                                                                                           outparmdb=out_instr_parmdb), exc_info=True)
-			raise
-                        
+                        raise
+
 
                 # apply solutions to the target field
                 transfer_calibration_to_target(calibrator_ms = calibr_ms,
@@ -679,7 +679,7 @@ class CALIB(object):
             self.logger.info("############### PIPELINE STAGE 2 ###############")
 
             stage = stage + 1
-            if self.stages['phasecal'] == True:
+            if self.stages['phasecal']:
 
                 # (1) Calibrator
                 ndppp_phasecal(ms = calibr_flag_ms,
@@ -718,7 +718,7 @@ class CALIB(object):
             self.logger.info('############### PIPELINE STAGE 3 ###############')
 
             stage = stage + 1
-            if self.stages['image'] == True:
+            if self.stages['image']:
 
                 # wide field imaging WSClean
                 fov = 10 # degrees, hard coded
@@ -766,7 +766,7 @@ def bbs_RM_correct(ms,
         logger.error("Error generating calibrator sky model with parameters {ms}, {filename_id}".format(ms=calibrator_ms,
                                                                                                         filename_id=filename_id),
                      exc_info=True)
-	raise
+        raise
 
     # CreateRMparmdb using ROBR
     # RACE CONDITION: dangerous if multiple prcesses uses these files
@@ -1012,7 +1012,7 @@ def ndppp_copy(msin,
 
 
 
-def generate_calibrator_skymodel(ms, filename_id = fileid()):
+def generate_calibrator_skymodel(ms, filename_id = fileid(), filename = None):
     """Generate a sky model for the calibrator
     :param: ms: measurement set
     :type ms: str or unicode
@@ -1073,7 +1073,8 @@ def generate_calibrator_skymodel(ms, filename_id = fileid()):
             raise RuntimeError("Calibrator {} has an a component but no b component.".format(source_name))
         source_name_list = [source_name+"a",source_name+"b"]
 
-    filename = source_name + "_" + filename_id + '.skymodel'
+    if not filename:
+        filename = source_name + "_" + filename_id + '.skymodel'
     with open(filename, 'w') as f:
         f.write("# (Name, Type, Ra, Dec, I, ReferenceFrequency='{}', " \
                 "SpectralIndex='[0.0]') = format\n".format(data[0]['refFREQ']))
@@ -1219,7 +1220,7 @@ def transfer_calibration_to_target(calibrator_ms,
         logger.error("Error generating gsm sky model with parameters {ms}, {filename_id}".format(ms=target_ms,
                                                                                                  filename_id=filename_id),
                      exc_info=True)
-	raise
+        raise
 
     source_name = get_source_name(target_ms)
 
@@ -1259,11 +1260,11 @@ def transfer_calibration_to_target(calibrator_ms,
                 os.path.basename(target_ms)))
 
 
-
 def ndppp_flagger(ms,
                   flagged_ms,
                   keep_parsets = False,
                   filename_id = fileid()):
+    # type: (object, object, object, object) -> object
     """Doc striung goes here
     :param ms: ...
     :type ms: str or unicode
@@ -1324,7 +1325,7 @@ def ndppp_phasecal(ms, correctModelBeam,
     except RuntimeError:
         logger.error("Error generating gsm sky model with parameters {ms}, {filename_id}".format(ms=ms, filename_id=filename_id),
                      exc_info=True)
-	raise
+        raise
 
     source_name = get_source_name(ms)
     source_db = os.path.join(ms, 'faint')
@@ -1378,7 +1379,8 @@ def ndppp_phasecal(ms, correctModelBeam,
 def get_gsm_skymodel(ms,
                      radius = 5,
                      fluxthresh = 1,
-                     filename_id = fileid()):
+                     filename_id = fileid(),
+                     filename = None):
     """Generate a global sky model with default R=5 deg Flux threshold 1 Jy
     :param ms: ...
     :type ms: str or unicode
@@ -1391,7 +1393,7 @@ def get_gsm_skymodel(ms,
     logger = logging.getLogger(__name__)
     logger.info(" ")
     logger.info("START: get GSM skymodel for {} with radius {} deg and flusx threshold {} Jy".format(os.path.basename(ms), radius, fluxthresh))
-    
+
     try:
         tabtarget = pt.table(ms+'/FIELD')
     except RuntimeError:
@@ -1401,8 +1403,9 @@ def get_gsm_skymodel(ms,
     ra_target   = target[0]+360.
     dec_target  = target[1]
     source_name = get_source_name(ms)
-    filename = 'GSM_' + source_name + '_R' + \
-               str(radius) +'deg_Ft' + str(fluxthresh) + 'Jy_' + filename_id + '.skymodel'
+    if not filename:
+        filename = 'GSM_' + source_name + '_R' + \
+                   str(radius) +'deg_Ft' + str(fluxthresh) + 'Jy_' + filename_id + '.skymodel'
     arguments = "{} {} {} {} {} 0.01".format(filename, ra_target, dec_target,
                                              radius, fluxthresh)
     cmd         = "gsm_wrapper " + arguments
@@ -1421,12 +1424,13 @@ def get_gsm_skymodel(ms,
 
 
 def wsclean_image(ms,
-                  outdir,
                   beamsize,
                   field_of_view,
                   robust_briggs = -2.0,
                   data_column = 'DATA',
-                  filename_id = fileid()):
+                  outdir = None,
+                  filename_id = fileid(),
+                  fileroot = None):
     """Wide field imaging of the calibrator and target with WSClean.
     :param ms: ...
     :param robust_briggs: ...
@@ -1445,17 +1449,25 @@ def wsclean_image(ms,
                                                                          beamsize,
                                                                          field_of_view)
     except RuntimeError:
-        logger.error("Error in get_imaging_parameters with arguments {ms}, {beamsize}, {field_of_view}".format(ms=ms, 
+        logger.error("Error in get_imaging_parameters with arguments {ms}, {beamsize}, {field_of_view}".format(ms=ms,
                                                                                                                beamsize=beamsize,
-                                                                                                               field_of_view=field_of_view), 
+                                                                                                               field_of_view=field_of_view),
                      exc_info=True)
-	raise
+        raise
 
     source_name = get_source_name(ms)
 
     # TODO: fov hardcoded, directory global variable
-    image_name = str(source_name)+'_'+str(field_of_view)+'deg_StokesI_'+str(filename_id)
-    image_name = os.path.join(outdir, image_name)
+    if fileroot:
+        image_name = fileroot
+    elif outdir:
+        image_name = str(source_name)+'_'+str(field_of_view)+'deg_StokesI_'+str(filename_id)
+        image_name = os.path.join(outdir, image_name)
+    else:
+        raise RunTimeError("You need to either provide an output directory or an output file root. None present.")
+
+    logger.info("Will write to output file {}".format(image_name))
+
     image_threshold = 0.005
 
     if os.path.exists(image_name):
@@ -1485,11 +1497,11 @@ def wsclean_image(ms,
     logger.info("FINISHED: imaging {}".format(os.path.basename(ms)))
 
 def testlogger():
-	"""
-	Helper function to test logger functionality. Just prints a warning
-	"""
-	logger = logging.getLogger(__name__)
-	logger.warning("If you can read this, it looks like the logger works.")
+    """
+    Helper function to test logger functionality. Just prints a warning
+    """
+    logger = logging.getLogger(__name__)
+    logger.warning("If you can read this, it looks like the logger works.")
 
 # MAIN ROUTINE START HERE
 if __name__ == "__main__":
@@ -1497,6 +1509,6 @@ if __name__ == "__main__":
     calrun = CALIB()
     logger = logging.getLogger(__name__)
 
-    # add handlers and so... 
+    # add handlers and so...
     # Run the demo pipeline
     calrun.run()
