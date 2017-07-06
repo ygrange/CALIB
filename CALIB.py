@@ -639,10 +639,20 @@ class CALIB(object):
                                                                                                                           outparmdb=out_instr_parmdb), exc_info=True)
                         raise
 
+                    # Generate a global sky model with default radius R=5 deg and flux threshold 1 Jy
+                    try:
+                        skymodel = get_gsm_skymodel(target_ms, filename_id=filename_id_target)
+                    except RuntimeError:
+                        logger.error(
+                            "Error generating gsm sky model with parameters {ms}, {filename_id}".format(ms=target_ms,
+                                                                                                        filename_id=filename_id),
+                            exc_info=True)
+                        raise
 
                 # apply solutions to the target field
                 transfer_calibration_to_target(calibrator_ms = calibr_ms,
                                                target_ms = target_ms,
+                                               skymodel = skymodel,
                                                keep_parsets = self.keep_parsets,
                                                keep_skymodels = self.keep_skymodels,
                                                keep_solutions = self.keep_solutions,
@@ -680,9 +690,17 @@ class CALIB(object):
 
             stage = stage + 1
             if self.stages['phasecal']:
+                # Generate a global sky model with R=5 deg Flux threshold 1 Jy
+                try:
+                    skymodel = generate_calibrator_skymodel(ms, filename_id=filename_id)
+                except RuntimeError:
+                    logger.error("Error generating gsm sky model with parameters {ms}, {filename_id}".format(ms=ms,
+                                                                                                             filename_id=filename_id),
+                                 exc_info=True)
+                    raise
 
                 # (1) Calibrator
-                ndppp_phasecal(ms = calibr_flag_ms,
+                ndppp_phasecal(ms = calibr_flag_ms, skymodel = skymodel
                                correctModelBeam = False,
                                keep_parsets = self.keep_parsets,
                                keep_skymodels = self.keep_skymodels,
@@ -697,8 +715,17 @@ class CALIB(object):
                               keep_parsets = self.keep_parsets,
                               filename_id = filename_id_calibr)
 
+                # Generate a global sky model with R=5 deg Flux threshold 1 Jy
+                try:
+                    skymodel = get_gsm_skymodel(ms, filename_id=filename_id)
+                except RuntimeError:
+                    logger.error("Error generating gsm sky model with parameters {ms}, {filename_id}".format(ms=ms,
+                                                                                                             filename_id=filename_id),
+                                 exc_info=True)
+                    raise
+
                 # (2) Target
-                ndppp_phasecal(ms = target_flag_ms,
+                ndppp_phasecal(ms = target_flag_ms, skymodel = skymodel
                                correctModelBeam = True,
                                keep_parsets = self.keep_parsets,
                                keep_skymodels = self.keep_skymodels,
@@ -1099,7 +1126,8 @@ def ndppp_calibration(ms,
                       usebeammodel = True,
                       keep_parsets = False,
                       keep_skymodels = False,
-                      filename_id = fileid()):
+                      filename_id = fileid(),
+                      calsoln = None):
     """Calibrate the (full) Jones matrix with NDPPP
     :param ms: ...
     :type ms: str or unicode
@@ -1107,6 +1135,8 @@ def ndppp_calibration(ms,
     :type usebeammodel: bool
     :param filename_id: ...
     :type filename_id: str or unicode
+    :param calsoln: ...
+    :type calsoln: str
     """
     logger = logging.getLogger(__name__)
     logger.info(" ")
@@ -1117,6 +1147,9 @@ def ndppp_calibration(ms,
     skymodel_db = os.path.join(ms, 'sky')
     cmd = 'makesourcedb in='+str(skymodel)+' out='+str(skymodel_db)+' format=<'
     run_command(cmd)
+
+    if not calsoln:
+        calsoln = os.path.join(ms, "instrument")
 
     # Generate calibration solutions
     gaincal_parset_name = "gaincal_{}.parset".format(filename_id)
@@ -1133,7 +1166,7 @@ def ndppp_calibration(ms,
     p1.add("calibrate.usemodelcolumn", "F")
     p1.add("calibrate.usebeammodel", str(usebeammodel)[0])
     p1.add("calibrate.tolerance", "1.e-5")
-    p1.add("calibrate.parmdb", os.path.join(ms, "instrument"))
+    p1.add("calibrate.parmdb", calsoln)
     p1.writeFile(gaincal_parset_name)
 
     run_command("NDPPP " + gaincal_parset_name)
@@ -1149,7 +1182,7 @@ def ndppp_calibration(ms,
     p2.add("steps", "[applycal]")
     p2.add("applycal.type" , "applycal")
     p2.add("applycal.correction", "gain")
-    p2.add("applycal.parmdb", os.path.join(ms, "instrument"))
+    p2.add("applycal.parmdb", calsoln)
     p2.writeFile(apply_parset_name)
 
     run_command("NDPPP " + apply_parset_name)
@@ -1166,7 +1199,7 @@ def ndppp_calibration(ms,
 
 
 
-def export_calibration_solutions(ms, filename_id = fileid()):
+def export_calibration_solutions(calsolns, filename_id):
     """Export time independent solutions before transfer to target.
     :param ms: ...
     :type ms: str or unicode
@@ -1177,11 +1210,15 @@ def export_calibration_solutions(ms, filename_id = fileid()):
     """
     logger = logging.getLogger(__name__)
     logger.info(" ")
+
     logger.info("START: Export calibration solutions of {}".format(ms))
 
     source_name = get_source_name(ms)
-    solns   = source_name + "_" + filename_id + '.solutions'
-    cmd = 'parmexportcal in=' + os.path.join(ms, 'instrument') + ' out=' + solns
+    solns   = calsolns + '.solutions'
+    cmd = 'parmexportcal in=' + calsoln \
+    if filename_id:
+        cmd += filename_id
+    cmd += ' out=' + solns
     run_command(cmd)
 
     logger.info("FINISHED: Export calibration solutions of {}".format(os.path.basename(ms)))
@@ -1191,12 +1228,14 @@ def export_calibration_solutions(ms, filename_id = fileid()):
 
 
 
-def transfer_calibration_to_target(calibrator_ms,
-                                   target_ms,
+def transfer_calibration_to_target(target_ms,
+                                   skymodel,
                                    keep_parsets = False,
                                    keep_skymodels = False,
                                    keep_solutions = False,
-                                   filename_id = fileid()):
+                                   filename_id = fileid(),
+                                   calsolns = None,
+                                   calibrator_ms = None):
     """Apply solutions to the target field
     :param ms: ...
     :param solutions: ...
@@ -1208,19 +1247,16 @@ def transfer_calibration_to_target(calibrator_ms,
                 os.path.basename(calibrator_ms),
                 os.path.basename(target_ms)))
 
+    if not calsolns:
+        if not calibrator_ms:
+            raise  RuntimeError("Either specify calsolns or calibrator_ms")
+        calsolns = + os.path.join(calibrator_ms, 'instrument')
+
     # Export time independent solutions before transfer to target
     # Q: since simultatious measurement, is really necassary? TJ says no.
     solutions = export_calibration_solutions(ms=calibrator_ms,
-                                             filename_id=filename_id)
-
-    # Generate a global sky model with default radius R=5 deg and flux threshold 1 Jy
-    try:
-        skymodel = get_gsm_skymodel(target_ms, filename_id=filename_id)
-    except RuntimeError:
-        logger.error("Error generating gsm sky model with parameters {ms}, {filename_id}".format(ms=target_ms,
-                                                                                                 filename_id=filename_id),
-                     exc_info=True)
-        raise
+                                             filename_id=filename_id,
+                                             calsolns=calsolns)
 
     source_name = get_source_name(target_ms)
 
@@ -1256,7 +1292,7 @@ def transfer_calibration_to_target(calibrator_ms,
         shutil.rmtree(solutions)
 
     logger.info("FINISHED: transfer calibration solutions from {} to {}".format(
-                os.path.basename(calibrator_ms),
+                os.path.basename(calsolns),
                 os.path.basename(target_ms)))
 
 
@@ -1302,7 +1338,7 @@ def ndppp_flagger(ms,
 
 
 
-def ndppp_phasecal(ms, correctModelBeam,
+def ndppp_phasecal(ms, correctModelBeam, skymodel,
                    keep_parsets = False,
                    keep_skymodels = False,
                    filename_id = fileid()):
@@ -1319,13 +1355,6 @@ def ndppp_phasecal(ms, correctModelBeam,
     logger.info(" ")
     logger.info("START: phase calibrating {}".format(os.path.basename(ms)))
 
-    # Generate a global sky model with R=5 deg Flux threshold 1 Jy
-    try:
-        skymodel = get_gsm_skymodel(ms, filename_id=filename_id)
-    except RuntimeError:
-        logger.error("Error generating gsm sky model with parameters {ms}, {filename_id}".format(ms=ms, filename_id=filename_id),
-                     exc_info=True)
-        raise
 
     source_name = get_source_name(ms)
     source_db = os.path.join(ms, 'faint')
