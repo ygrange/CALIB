@@ -7,3 +7,8 @@ def create_donemark(fname):
     with open(fname, "w") as wrf:
         wrf.write(file_content.format(functionname=functionname,
                                       timestamp=timestamp))
+def check_donemark(fname):
+    logger = logging.getLogger(__name__)
+    with open(fname) as fh:
+        logtext = "Contents of DoneMark file {fname}: {content}"
+        logger.debug(logtext.format(fname=fname, content=fh.read())
