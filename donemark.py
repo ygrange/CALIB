@@ -31,3 +31,6 @@ def check_donemark(fname):
     with open(fname) as fh:
         logtext = "Contents of DoneMark file {fname}: {content}"
         logger.debug(logtext.format(fname=fname, content=fh.read())
+
+if __name__ == "__main__":
+    print "Don't run this script; import it."

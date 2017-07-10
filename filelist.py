@@ -30,3 +30,7 @@ class FileReturner(object):
 
     def get(self, filetype):
         return self.files[filetype]
+
+if __name__ == "__main__":
+    print "Don't run this script; import it."
+
