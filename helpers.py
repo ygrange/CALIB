@@ -49,7 +49,7 @@ def check_donemark(fname):
         logger.debug(logtext.format(fname=fname, content=fh.read()))
 
 def create_logger():
-    fnam = basename(__file__)
+    fnam = basename(functionname)
     logfile = fnam + datetime.now().isoformat() + ".log"
     config_logger(2, logfile)
 
