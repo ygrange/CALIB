@@ -18,6 +18,7 @@
 #     along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 import CALIB
+import argparse
 
 parser = argparse.ArgumentParser(description="Flag measurementset")
 parser.add_argument("-i", "--msin", required=True)
