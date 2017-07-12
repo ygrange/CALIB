@@ -46,7 +46,7 @@ def check_donemark(fname):
     logger = logging.getLogger(__name__)
     with open(fname) as fh:
         logtext = "Contents of DoneMark file {fname}: {content}"
-        logger.debug(logtext.format(fname=fname, content=fh.read())
+        logger.debug(logtext.format(fname=fname, content=fh.read()))
 
 def create_logger():
     fnam = basename(__file__)
