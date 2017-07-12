@@ -700,7 +700,7 @@ class CALIB(object):
                     raise
 
                 # (1) Calibrator
-                ndppp_phasecal(ms = calibr_flag_ms, skymodel = skymodel
+                ndppp_phasecal(ms = calibr_flag_ms, skymodel = skymodel,
                                correctModelBeam = False,
                                keep_parsets = self.keep_parsets,
                                keep_skymodels = self.keep_skymodels,
@@ -725,7 +725,7 @@ class CALIB(object):
                     raise
 
                 # (2) Target
-                ndppp_phasecal(ms = target_flag_ms, skymodel = skymodel
+                ndppp_phasecal(ms = target_flag_ms, skymodel = skymodel,
                                correctModelBeam = True,
                                keep_parsets = self.keep_parsets,
                                keep_skymodels = self.keep_skymodels,
@@ -1215,7 +1215,7 @@ def export_calibration_solutions(calsolns, filename_id):
 
     source_name = get_source_name(ms)
     solns   = calsolns + '.solutions'
-    cmd = 'parmexportcal in=' + calsoln \
+    cmd = 'parmexportcal in=' + calsoln 
     if filename_id:
         cmd += filename_id
     cmd += ' out=' + solns
