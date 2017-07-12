@@ -17,8 +17,24 @@
 #     You should have received a copy of the GNU General Public License
 #     along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
+import ConfigParser
 from datetime import datetime
 from __main__ import __file__ as functionname
+from os.path import basename
+from CALIB import config_logger
+
+
+
+class FileReturner(object):
+
+    def __init__(self, input_files='/tmp/inputfiles.dat'):
+        parser = ConfigParser.ConfigParser()
+        parser.read(input_files)
+        self.files = {"calibrator": parser.get('files', 'calibrators'),
+                      "target": parser.get('files', 'targets')}
+
+    def get(self, filetype):
+        return self.files[filetype]
 
 def create_donemark(fname):
     file_content = "{functionname} done on {timestamp}\n"
@@ -32,5 +48,11 @@ def check_donemark(fname):
         logtext = "Contents of DoneMark file {fname}: {content}"
         logger.debug(logtext.format(fname=fname, content=fh.read())
 
+def create_logger():
+    fnam = basename(__file__)
+    logfile = fnam + datetime.now().isoformat() + ".log"
+    config_logger(2, logfile)
+
 if __name__ == "__main__":
     print "Don't run this script; import it."
+

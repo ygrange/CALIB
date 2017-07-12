@@ -19,6 +19,9 @@
 #
 import CALIB
 import argparse
+from helpers import create_logger
+
+create_logger()
 
 parser = argparse.ArgumentParser(description="Generate sky model for calibrator or get from gsm for target.")
 parser.add_argument("-m", "--ms", required=True, help="Measurement set with source name in meta data.")

@@ -19,6 +19,9 @@
 #
 import CALIB
 import argparse
+from helpers import create_logger
+
+create_logger()
 
 parser = argparse.ArgumentParser(description="Flag measurementset")
 parser.add_argument("-i", "--msin", required=True)

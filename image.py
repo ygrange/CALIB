@@ -19,6 +19,9 @@
 #
 import CALIB
 import argparse
+from helpers import create_logger, check_donemark
+
+create_logger()
 
 parser = argparse.ArgumentParser(description="Calibrate gains.")
 parser.add_argument("-m", "--ms", required=True, help="Input measurement set")
@@ -29,7 +32,7 @@ parser.add_argument("-r", "--fileroot", required=True, help="Output file root")
 parser.add_argument("-x", "--donemark_input", required=True, help="Input donemark dependency.")
 args = parser.parse_args()
 
-donemark.check_donemark(args.donemark_input)
+check_donemark(args.donemark_input)
 
 CALIB.wsclean_image(ms=args.ms,
                     beamsize=args.beamsize,

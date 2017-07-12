@@ -19,6 +19,9 @@
 #
 import CALIB
 import argparse
+from helpers import create_logger
+
+create_logger()
 
 parser = argparse.ArgumentParser(description="Calibrate gains.")
 parser.add_argument("-m", "--ms", required=True, help="Input measurement set")
