@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+# This script is expected to be a wrapper around gsm which starts the database, pulls a point out and stops it again
+# However since we run this script on the DAS5 cluster, we can just access the LOFAR native gsm.
+
+gsm.py $*
