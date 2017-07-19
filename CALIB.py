@@ -1211,17 +1211,16 @@ def export_calibration_solutions(calsolns, filename_id):
     logger = logging.getLogger(__name__)
     logger.info(" ")
 
-    logger.info("START: Export calibration solutions of {}".format(ms))
+    logger.info("START: Export calibration solutions of {}".format(calsolns))
 
-    source_name = get_source_name(ms)
-    solns   = calsolns + '.solutions'
-    cmd = 'parmexportcal in=' + calsoln 
+    solns = calsolns + '.solutions'
+    cmd = 'parmexportcal in=' + calsolns 
     if filename_id:
         cmd += filename_id
     cmd += ' out=' + solns
     run_command(cmd)
 
-    logger.info("FINISHED: Export calibration solutions of {}".format(os.path.basename(ms)))
+    logger.info("FINISHED: Export calibration solutions of {}".format(os.path.basename(calsolns)))
 
     return solns
 
@@ -1243,19 +1242,21 @@ def transfer_calibration_to_target(target_ms,
     """
     logger = logging.getLogger(__name__)
     logger.info(" ")
-    logger.info("START: transfer calibration solutions from {} to {}".format(
-                os.path.basename(calibrator_ms),
-                os.path.basename(target_ms)))
+    log_msg = "START: trabsfer calibration solutions from {} to {}"
+    if calsolns:
+        logger.info(log_msg.format(os.path.basename(calsolns),
+                                   os.path.basename(target_ms)))
+    elif calibrator_ms:
+        logger.info(log_msg.format(os.path.basename(calibrator_ms),
+                                   os.path.basename(target_ms)))
+        calsolns = os.path.join(calibrator_ms, 'instrument')
+    else:
+        raise  RuntimeError("Either specify calsolns or calibrator_ms")
 
-    if not calsolns:
-        if not calibrator_ms:
-            raise  RuntimeError("Either specify calsolns or calibrator_ms")
-        calsolns = + os.path.join(calibrator_ms, 'instrument')
 
     # Export time independent solutions before transfer to target
     # Q: since simultatious measurement, is really necassary? TJ says no.
-    solutions = export_calibration_solutions(ms=calibrator_ms,
-                                             filename_id=filename_id,
+    solutions = export_calibration_solutions(filename_id=filename_id,
                                              calsolns=calsolns)
 
     source_name = get_source_name(target_ms)
@@ -1341,7 +1342,8 @@ def ndppp_flagger(ms,
 def ndppp_phasecal(ms, correctModelBeam, skymodel,
                    keep_parsets = False,
                    keep_skymodels = False,
-                   filename_id = fileid()):
+                   filename_id = fileid(),
+                   calsolns = None):
     """Function to phase calibrate a peeled MS with GainCal.
     :param ms: ...
     :type ms: str or unicode
@@ -1354,6 +1356,8 @@ def ndppp_phasecal(ms, correctModelBeam, skymodel,
     # TODO: use python boolean as input; use str(False) etc in parset possible?
     logger.info(" ")
     logger.info("START: phase calibrating {}".format(os.path.basename(ms)))
+    if not calsolns:
+        calsolns = os.path.join(ms, 'instrument')
 
 
     source_name = get_source_name(ms)
@@ -1373,7 +1377,7 @@ def ndppp_phasecal(ms, correctModelBeam, skymodel,
     p1.add("solve.caltype", "phaseonly")
     p1.add("solve.sourcedb", source_db)
     p1.add("solve.usebeammodel", str(correctModelBeam)[0])
-    p1.add("solve.parmdb", ms+"/instrument")
+    p1.add("solve.parmdb", calsolns)
     p1.add("solve.maxiter", "200")
     p1.writeFile(phasesolve_parset_name)
 
@@ -1389,7 +1393,7 @@ def ndppp_phasecal(ms, correctModelBeam, skymodel,
     p2.add("steps", "[correct]")
     p2.add("correct.type", "applycal")
     p2.add("correct.correction", "gain")
-    p2.add("correct.parmdb", os.path.join(ms, "instrument"))
+    p2.add("correct.parmdb", calsolns)
     p2.writeFile(phasecorrect_parset_name)
 
     run_command('NDPPP ' + phasecorrect_parset_name)

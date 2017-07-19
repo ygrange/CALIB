@@ -29,10 +29,11 @@ parser.add_argument("-b", "--beamsize", type=lambda s: [int(item) for item in s.
                     required=True, help="List of beam sizes in arcsec")
 parser.add_argument("-f", "--fov", required=True, help="Field of view")
 parser.add_argument("-r", "--fileroot", required=True, help="Output file root")
-parser.add_argument("-x", "--donemark_input", required=True, help="Input donemark dependency.")
+parser.add_argument("-x", "--donemark_input", required=False, help="Input donemark dependency. (not required)")
 args = parser.parse_args()
 
-check_donemark(args.donemark_input)
+if args.donemark_input:
+    check_donemark(args.donemark_input)
 
 CALIB.wsclean_image(ms=args.ms,
                     beamsize=args.beamsize,

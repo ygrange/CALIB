@@ -22,7 +22,7 @@ from datetime import datetime
 from __main__ import __file__ as functionname
 from os.path import basename
 from CALIB import config_logger
-
+import logging
 
 
 class FileReturner(object):

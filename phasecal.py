@@ -19,24 +19,23 @@
 #
 import CALIB
 import argparse
-from helpers import create_logger, create_donemark, check_donemark
+from helpers import create_logger, create_donemark
 
 create_logger()
 
 parser = argparse.ArgumentParser(description="Phase calibration.")
 parser.add_argument("-m", "--ms", required=True, help="MS to calibrate")
-parser.add_argument("-c", "--correct-model-beam", action='store_true', help="Correct model beam (i.e. target obs)")
+parser.add_argument("-b", "--correct-model-beam", action='store_true', help="Correct model beam (i.e. target obs)")
 parser.add_argument("-d", "--donemark", required=True, help="Donemark file")
 parser.add_argument("-s", "--skymodel", required=True, help="Path of skymodel to use")
-parser.add_argument("-x", "--donemark_input", required=True, help="Input donemark dependency.")
+parser.add_argument("-c", "--calsolns", required=True, help="Pathname of calibration solutions")
 args = parser.parse_args()
-
-check_donemark(args.donemark_input)
 
 CALIB.ndppp_phasecal(ms=args.ms,
                correctModelBeam=args.correct_model_beam,
                skymodel=args.skymodel,
-               keep_parsets=self.keep_parsets)
+               keep_parsets=True,
+               calsolns=args.calsolns)
 
 create_donemark(args.donemark)
 

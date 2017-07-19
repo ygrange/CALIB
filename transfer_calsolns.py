@@ -27,7 +27,7 @@ parser = argparse.ArgumentParser(description="Transfer gain calibration solution
 parser.add_argument("-t", "--target", required=True, help="Target MS")
 parser.add_argument("-s", "--skymodel", required=True, help="Skymodel file")
 parser.add_argument("-d", "--donemark", required=True, help="Donemark file")
-parser.add_argument("-c", "--calsolns", required=True help="Pathname of calibration solutions")
+parser.add_argument("-c", "--calsolns", required=True, help="Pathname of calibration solutions")
 
 args = parser.parse_args()
 
