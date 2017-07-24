@@ -1378,6 +1378,7 @@ def ndppp_phasecal(ms, correctModelBeam, skymodel,
     p1.add("solve.sourcedb", source_db)
     p1.add("solve.usebeammodel", str(correctModelBeam)[0])
     p1.add("solve.parmdb", calsolns)
+    p1.add("solve.propagatesolutions", "F")
     p1.add("solve.maxiter", "200")
     p1.writeFile(phasesolve_parset_name)
 
