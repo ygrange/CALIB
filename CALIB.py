@@ -1497,6 +1497,11 @@ def wsclean_image(ms,
     elif outdir:
         image_name = str(source_name)+'_'+str(field_of_view)+'deg_StokesI_'+str(filename_id)
         image_name = os.path.join(outdir, image_name)
+        try:
+            os.makedirs(outdir)
+        except OSError as oe:
+            if oe.args[1] != 'File exists':
+                raise
     else:
         raise RunTimeError("You need to either provide an output directory or an output file root. None present.")
 
