@@ -1,5 +1,5 @@
 [files]
 target_path=/var/scratch/grange/L12345
 calibrator_path=/var/scratch/grange/L67890
-targets=%(target_path)s/L12345_SB000
-calibrators=%(calibrator_path)s/L67890_SB000
+targets=["%(target_path)s/L12345_SB000.MS", "%(target_path)s/L12345_SB001.MS", "%(target_path)s/L12345_SB002.MS"]
+calibrators=["%(calibrator_path)s/L67890_SB000.MS", "%(calibrator_path)s/L67890_SB001.MS", "%(calibrator_path)s/L67890_SB001.MS"]

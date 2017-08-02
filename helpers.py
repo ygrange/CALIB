@@ -19,22 +19,42 @@
 #
 import ConfigParser
 from datetime import datetime
-from __main__ import __file__ as functionname
+try:
+    from __main__ import __file__ as functionname
+except ImportError: # Running in a python shell
+    functionname = 'shell_run.py'
 from os.path import basename
 from CALIB import config_logger
 import logging
+import ast
 
+def make_splitted_data(fname_in):
+    cfg = ConfigParser.ConfigParser()
+    cfg.read(fname_in)
+
+    files_section = 'files'
+    cfg_out = ConfigParser.ConfigParser()
+    target_list = ast.literal_eval(cfg.get(files_section, 'targets'))
+    calibrator_list = ast.literal_eval(cfg.get(files_section, 'calibrators'))
+    if len(target_list) != len(calibrator_list):
+        raise IndexError("List of targets and calibrators need to be of equal length.")
+    cfg_out.add_section(files_section)
+    for num, tgt in enumerate(target_list):
+        cfg_out.set(files_section, 'target', tgt)
+        cfg_out.set(files_section, 'calibrator', calibrator_list[num])
+        yield cfg_out
 
 class FileReturner(object):
 
     def __init__(self, input_files='/tmp/inputfiles.dat'):
         parser = ConfigParser.ConfigParser()
         parser.read(input_files)
-        self.files = {"calibrator": parser.get('files', 'calibrators'),
-                      "target": parser.get('files', 'targets')}
+        self.files = {"calibrator": parser.get('files', 'calibrator'),
+                      "target": parser.get('files', 'target')}
 
     def get(self, filetype):
         return self.files[filetype]
+
 
 def create_donemark(fname):
     file_content = "{functionname} done on {timestamp}\n"
