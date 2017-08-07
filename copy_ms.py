@@ -28,10 +28,11 @@ parser.add_argument("-c", "--column", required=True, default="DATA", help="Data 
 parser.add_argument("-t", "--type", required=True, choices=['calibrator','target'],
                     help="Type of MS")
 parser.add_argument("-o", "--msout", required=True, help="output MS")
+parser.add_argument("-i", "--input", required=True, help="input config file")
 
 args = parser.parse_args()
 
-msin = FileReturner().get(args.type)
+msin = FileReturner(args.input).get(args.type)
 
 CALIB.ndppp_copy(msin=msin,
                 indatacol=args.column,
