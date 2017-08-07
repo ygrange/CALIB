@@ -21,7 +21,7 @@ import CALIB
 import argparse
 from helpers import FileReturner, create_logger
 
-create_logger()
+uuid = create_logger()
 
 parser = argparse.ArgumentParser(description="Copy measurementset")
 parser.add_argument("-c", "--column", required=True, default="DATA", help="Data column")
@@ -38,4 +38,5 @@ CALIB.ndppp_copy(msin=msin,
                 indatacol=args.column,
                 msout=args.msout,
                 outdatacol=args.column,
-                keep_parsets=True)
+                keep_parsets=True,
+                filename_id=uuid)

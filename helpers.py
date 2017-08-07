@@ -27,6 +27,7 @@ from os.path import basename
 from CALIB import config_logger
 import logging
 import ast
+from uuid import uuid4
 
 def make_splitted_data(fname_in):
     cfg = ConfigParser.ConfigParser()
@@ -69,9 +70,11 @@ def check_donemark(fname):
         logger.debug(logtext.format(fname=fname, content=fh.read()))
 
 def create_logger():
+    uuid = str(uuid4())
     fnam = basename(functionname.strip(".py"))
-    logfile = fnam + datetime.now().isoformat() + ".log"
+    logfile = fnam + datetime.now().isoformat() + "_" + uuid + ".log"
     config_logger(2, logfile)
+    return uuid
 
 if __name__ == "__main__":
     print "Don't run this script; import it."

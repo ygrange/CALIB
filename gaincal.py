@@ -19,9 +19,10 @@
 #
 import CALIB
 import argparse
+from uuid import uuid4
 from helpers import create_logger, create_donemark
 
-create_logger()
+uuid = create_logger()
 
 parser = argparse.ArgumentParser(description="Calibrate gains.")
 parser.add_argument("-m", "--ms", required=True, help="Input measurement set")
@@ -30,6 +31,11 @@ parser.add_argument("-s", "--skymodel", required=True, help="Path of skymodel to
 parser.add_argument("-d", "--donemark", required=True, help="Donemark file")
 args = parser.parse_args()
 
-CALIB.ndppp_calibration(ms=args.ms, skymodel=args.skymodel, calsoln=args.output, keep_skymodels=True)
+CALIB.ndppp_calibration(ms=args.ms, 
+                        skymodel=args.skymodel, 
+                        calsoln=args.output, 
+                        keep_skymodels=True, 
+                        keep_parsets=True, 
+                        filename_id=uuid)
 
 create_donemark(args.donemark)

@@ -17,10 +17,12 @@
 #     You should have received a copy of the GNU General Public License
 #     along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
+
 import CALIB
 import argparse
 from helpers import create_logger, check_donemark
-create_logger()
+
+uuid = create_logger()
 
 parser = argparse.ArgumentParser(description="Flag measurementset")
 parser.add_argument("-i", "--msin", required=True)
@@ -32,4 +34,6 @@ args = parser.parse_args()
 check_donemark(args.donemark_input)
 
 CALIB.ndppp_flagger(ms=args.msin,
-                    flagged_ms=args.msout)
+                    flagged_ms=args.msout,
+                    keep_parsets=True,
+                    filename_id=uuid)

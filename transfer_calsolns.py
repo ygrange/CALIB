@@ -21,7 +21,7 @@ import CALIB
 import argparse
 from helpers import create_logger, create_donemark
 
-create_logger()
+uuid = create_logger()
 
 parser = argparse.ArgumentParser(description="Transfer gain calibration solutions from calibrator to target.")
 parser.add_argument("-t", "--target", required=True, help="Target MS")
@@ -38,5 +38,5 @@ CALIB.transfer_calibration_to_target(target_ms=args.target,
                                      keep_skymodels=True,
                                      keep_solutions=True,
                                      keep_parsets=True,
-                                     filename_id=None)
+                                     filename_id=uuid)
 create_donemark(args.donemark)

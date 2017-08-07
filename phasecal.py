@@ -21,7 +21,7 @@ import CALIB
 import argparse
 from helpers import create_logger, create_donemark
 
-create_logger()
+uuid = create_logger()
 
 parser = argparse.ArgumentParser(description="Phase calibration.")
 parser.add_argument("-m", "--ms", required=True, help="MS to calibrate")
@@ -35,7 +35,8 @@ CALIB.ndppp_phasecal(ms=args.ms,
                correctModelBeam=args.correct_model_beam,
                skymodel=args.skymodel,
                keep_parsets=True,
-               calsolns=args.calsolns)
+               calsolns=args.calsolns,
+               filename_id=uuid)
 
 create_donemark(args.donemark)
 

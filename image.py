@@ -21,7 +21,7 @@ import CALIB
 import argparse
 from helpers import create_logger, check_donemark
 
-create_logger()
+uuid = create_logger()
 
 parser = argparse.ArgumentParser(description="Calibrate gains.")
 parser.add_argument("-m", "--ms", required=True, help="Input measurement set")
@@ -39,4 +39,5 @@ for beamsize in args.beamsize:
     CALIB.wsclean_image(ms=args.ms,
                         beamsize=beamsize,
                         field_of_view=args.fov,
-                        outdir=args.outdir)
+                        outdir=args.outdir,
+                        filename_id=uuid)
