@@ -37,4 +37,5 @@ msin = FileReturner(args.input).get(args.type)
 CALIB.ndppp_copy(msin=msin,
                 indatacol=args.column,
                 msout=args.msout,
-                outdatacol=args.column)
+                outdatacol=args.column,
+                keep_parsets=True)
