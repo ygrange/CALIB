@@ -38,5 +38,5 @@ CALIB.transfer_calibration_to_target(target_ms=args.target,
                                      keep_skymodels=True,
                                      keep_solutions=True,
                                      keep_parsets=True,
-                                     filename_id=uuid)
+                                     filename_id=None)
 create_donemark(args.donemark)
