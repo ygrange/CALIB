@@ -20,6 +20,7 @@
 import CALIB
 import argparse
 from helpers import FileReturner, create_logger
+from shutil import copytree 
 
 uuid = create_logger()
 
@@ -29,12 +30,14 @@ parser.add_argument("-t", "--type", required=True, choices=['calibrator','target
                     help="Type of MS")
 parser.add_argument("-o", "--msout", required=True, help="output MS")
 parser.add_argument("-i", "--input", required=True, help="input config file")
-
+parser.add_argument("-s", "--side-effect", required=True, help="filename of local copy of input MS to prevent issues with NFS.")
 args = parser.parse_args()
 
 msin = FileReturner(args.input).get(args.type)
 
-CALIB.ndppp_copy(msin=msin,
+copytree(msin, args.side_effect)
+
+CALIB.ndppp_copy(msin=args.side_effect,
                 indatacol=args.column,
                 msout=args.msout,
                 outdatacol=args.column,
