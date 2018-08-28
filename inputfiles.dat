@@ -1,0 +1,5 @@
+[files]
+target_path=/local/data/tgt
+calibrator_path=/local/data/cal
+calibrators=["%(calibrator_path)s/L570745_SB000_uv.MS", "%(calibrator_path)s/L570745_SB001_uv.MS", "%(calibrator_path)s/L570745_SB002_uv.MS", "%(calibrator_path)s/L570745_SB003_uv.MS", "%(calibrator_path)s/L570745_SB004_uv.MS"]
+targets=["%(target_path)s/L570741_SB244_uv.MS", "%(target_path)s/L570741_SB245_uv.MS", "%(target_path)s/L570741_SB246_uv.MS", "%(target_path)s/L570741_SB247_uv.MS", "%(target_path)s/L570741_SB248_uv.MS"]

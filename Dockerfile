@@ -13,3 +13,7 @@ COPY phasecal.py /usr/bin
 COPY split_obs.py /usr/bin
 COPY transfer_calsolns.py /usr/bin
 
+COPY inputfiles.dat /tmp
+
+ENTRYPOINT /bin/bash --init-file /usr/bin/init.sh
+
