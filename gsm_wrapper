@@ -1,5 +1,10 @@
-#!/usr/bin/env bash
-# This script is expected to be a wrapper around gsm which starts the database, pulls a point out and stops it again
-# However since we run this script on the DAS5 cluster, we can just access the LOFAR native gsm.
+#!/usr/bin/env python
+# Since the gsm database is not reachable afaik, I decided to use the existing wrapper to just copy the right sky
+# model in place
 
-gsm.py $*
+import sys
+from shutil import copyfile
+
+fnam = sys.argv[1]
+
+copyfile("/usr/share/data_skymodel.sky", fnam)
