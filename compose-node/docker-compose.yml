@@ -1,0 +1,30 @@
+# Docker-compose for LOFAR
+version: '3.2'
+services:
+  lofar-dlg:
+    image: "dlg-calib/centos7"
+    working_dir: /local/workdir
+    network_mode: "host"
+    labels:
+      NAME: "calib_daliuge"
+    command:
+      - dlg 
+      - nm 
+      - -w
+      - /local/workdir
+      - -H 0.0.0.0
+      - -l
+      - /local/workdir/log/
+      - -vvvv
+    volumes:
+      - type: bind
+        source: /var/scratch/grange/CALIBdata
+        target: /local/data
+      - type: bind
+        source: /local/grange/dlg_work
+        target: /local/workdir
+      - type: bind
+        source: /var/scratch/grange/Daliuge/shared
+        target: /local/shared
+#    restart: always
+
